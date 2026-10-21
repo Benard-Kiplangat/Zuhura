@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Zuhura Mart Admin</title>
+<link rel="stylesheet" href="style.css"><style>.wrap{max-width:1100px;margin:30px auto;padding:0 20px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}th{color:var(--muted);font-weight:600}
+.tabs{display:flex;gap:10px;margin:18px 0}.sm{width:90px;padding:6px 8px;background:var(--bg);color:#fff;border:1px solid var(--border);border-radius:10px}.x{background:none;border:0;color:#ff8a93;cursor:pointer}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}.fgrid input{width:100%;background:var(--bg);color:#fff;border:1px solid var(--border);border-radius:12px;padding:10px;font:inherit}
+.scroll{overflow-x:auto}</style></head><body><div class="wrap">
+<h1>Zuhura Mart admin</h1><p class="err" id="msg" role="alert"></p><div id="app"></div></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let pw=sessionStorage.zm_admin||'',tab='orders';
+const api=async(m,u,b)=>{const r=await fetch('/api/admin/'+u,{method:m,headers:{'Content-Type':'application/json','x-admin':pw},body:b&&JSON.stringify(b)});const d=await r.json();if(!r.ok)throw new Error(d.error);return d};
+async function show(){
+  $('#msg').textContent='';
+  try{
+    const [orders,products]=await Promise.all([api('GET','orders'),fetch('/api/products').then(r=>r.json())]);
+    sessionStorage.zm_admin=pw;
+    const rev=orders.filter(o=>o.status!=='cancelled').reduce((a,o)=>a+o.total,0);
+    $('#app').innerHTML=`<p class="muted">${orders.length} orders · KSh ${rev.toLocaleString()} revenue · ${products.filter(p=>p.stock<1).length} sold out</p>
+    <div class="tabs"><button class="cat ${tab==='orders'?'active':''}" data-t="orders">Orders</button><button class="cat ${tab==='products'?'active':''}" data-t="products">Products</button></div>`+
+    (tab==='orders'?`<div class="scroll"><table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr>${orders.map(o=>`<tr><td>${o.id}<br><span class="muted">${new Date(o.created).toLocaleString()}</span></td><td>${esc(o.customer.name)}<br>${esc(o.customer.phone)}<br><span class="muted">${esc(o.customer.address)}, ${esc(o.customer.city)}</span></td><td>${o.items.map(i=>`${i.qty}× ${esc(i.name)}`).join('<br>')}</td><td>KSh ${o.total.toLocaleString()}</td><td><select data-o="${o.id}">${['pending','paid','shipped','delivered','cancelled'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')||'<tr><td colspan=5 class="muted">No orders yet. They appear here when customers check out.</td></tr>'}</table></div>`:
+    `<form id="np"><div class="fgrid"><input name="name" placeholder="Product name" required><input name="brand" placeholder="Brand"><input name="price" type="number" placeholder="Price (KSh)" required><input name="stock" type="number" placeholder="Stock"><input name="cat" placeholder="phones, audio, laptops, gaming, smart"><input name="emoji" placeholder="Emoji, e.g. 📱"><input name="image" placeholder="Image URL (optional)"><input name="desc" placeholder="Short description"></div><button class="btn btn-primary">Add product</button></form>
+    <div class="scroll" style="margin-top:20px"><table><tr><th>Product</th><th>Price</th><th>Stock</th><th></th></tr>${products.map(p=>`<tr><td>${esc(p.emoji)} ${esc(p.name)}</td><td><input class="sm" type="number" value="${p.price}" data-p="${p.id}" data-f="price"></td><td><input class="sm" type="number" value="${p.stock}" data-p="${p.id}" data-f="stock"></td><td><button class="x" data-del="${p.id}">Delete</button></td></tr>`).join('')}</table></div>`);
+  }catch(e){
+    $('#app').innerHTML=`<form id="login"><label for="pw" class="muted">Admin password</label><input id="pw" type="password" class="sm" style="width:240px;display:block;margin:8px 0" required><button class="btn btn-primary">Sign in</button></form>`;
+    if(pw)$('#msg').textContent=e.message;
+  }
+}
+document.addEventListener('submit',async e=>{e.preventDefault();
+  if(e.target.id==='login'){pw=$('#pw').value;return show()}
+  if(e.target.id==='np'){try{await api('POST','products',Object.fromEntries(new FormData(e.target)));show()}catch(x){$('#msg').textContent=x.message}}});
+document.addEventListener('change',async e=>{const t=e.target;try{
+  if(t.dataset.o)await api('PATCH','orders/'+t.dataset.o,{status:t.value});
+  if(t.dataset.p)await api('PUT','products/'+t.dataset.p,{[t.dataset.f]:t.value})}catch(x){$('#msg').textContent=x.message}});
+document.addEventListener('click',async e=>{const t=e.target;
+  if(t.dataset.t){tab=t.dataset.t;show()}
+  if(t.dataset.del&&confirm('Delete this product?')){await api('DELETE','products/'+t.dataset.del);show()}});
+show();
+</script></body></html>
