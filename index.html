@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zuhura Mart - Gadgets & Electronics</title>
+<meta name="description" content="Phones, laptops, audio, gaming and smart home gear. Same-day dispatch from Nairobi. Pay with M-Pesa.">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body>
+<header class="nav"><div class="nav-inner">
+  <a class="logo" href="/">zuhura<span>Mart.</span></a>
+  <label class="search"><span aria-hidden="true">⌕</span><input id="q" placeholder="Search gadgets, phones, audio..." aria-label="Search products"></label>
+  <button class="icon-btn" id="cartBtn" aria-label="Open cart">🛒<span class="cart-count" id="count">0</span></button>
+</div></header>
+
+<section class="hero">
+  <div class="hero-main">
+    <div class="badge">NEW DROP • 2026 COLLECTION</div>
+    <h1>Tech that feels like future.</h1>
+    <p>Curated phones, laptops, audio and smart home gear. Same-day dispatch from Nairobi. Pay with M-Pesa.</p>
+    <div class="btns"><a class="btn btn-primary" href="#products">Shop now</a><a class="btn btn-dark" id="waHero" target="_blank" rel="noopener">Chat on WhatsApp</a></div>
+  </div>
+  <div class="hero-side" id="side"></div>
+</section>
+
+<nav class="cats" id="cats" aria-label="Categories">
+  <button class="cat active" data-cat="all">All gadgets</button><button class="cat" data-cat="phones">Phones</button>
+  <button class="cat" data-cat="audio">Audio</button><button class="cat" data-cat="laptops">Laptops</button>
+  <button class="cat" data-cat="gaming">Gaming</button><button class="cat" data-cat="smart">Smart home</button>
+</nav>
+
+<main class="section" id="products">
+  <div class="section-head"><div><h2 id="title">Trending now</h2><span class="muted" id="info"></span></div>
+    <select id="sort" aria-label="Sort products"><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<section class="trust">
+  <div><b>Genuine and sealed</b><span>Every device ships with its warranty card.</span></div>
+  <div><b>Pay with M-Pesa</b><span>We send payment details on WhatsApp.</span></div>
+  <div><b>Free delivery over KSh 5,000</b><span>Same-day dispatch within Nairobi.</span></div>
+</section>
+<footer>© 2026 Zuhura Mart · Nairobi, Kenya</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside id="drawer" aria-label="Shopping cart">
+  <div class="drawer-head"><h2 id="drawerTitle" style="font-size:20px">Your cart</h2><button class="btn btn-dark" id="closeCart" aria-label="Close cart">✕</button></div>
+  <div id="cartBody"></div>
+</aside>
+<dialog id="modal"></dialog>
+<script src="app.js"></script></body></html>
