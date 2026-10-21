@@ -1,4 +1,4 @@
-const CFG={whatsapp:'254700000000',freeShip:5000,shipFee:300}; // <- put your WhatsApp number here
+const CFG={whatsapp:'254714005576',freeShip:5000,shipFee:300}; // <- put your WhatsApp number here
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const KSh=n=>'KSh '+Number(n).toLocaleString();
