@@ -4,18 +4,20 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const KSh=n=>'KSh '+Number(n).toLocaleString();
 let products=[],cart=JSON.parse(localStorage.zm_cart||'[]'),cat='all',q='',sort='featured',view='cart',done=null;
 const save=()=>localStorage.zm_cart=JSON.stringify(cart);
-const pic=p=>p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">`:esc(p.emoji);
+const pic=p=>p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}" data-b="${esc(p.brand)}" loading="lazy">`:`<span class="ph">${esc(p.brand)}</span>`;
+document.addEventListener('error',e=>{const i=e.target;if(i.tagName==='IMG'&&i.dataset.b){console.warn('Broken image:',i.alt,i.src);const s=document.createElement('span');s.className='ph';s.textContent=i.dataset.b;i.replaceWith(s)}},true);
 const byId=id=>products.find(p=>p.id===id);
 $('#waHero').href=`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent('Hi Zuhura Mart, I need help choosing a gadget.')}`;
 
 async function load(){
   try{products=await (await fetch('products.json')).json()}
   catch{$('#grid').innerHTML='<p class="empty">Could not load products. Refresh the page to try again.</p>';return}
+  products.forEach(p=>{if(!(p.old>p.price))delete p.old});
   cart=cart.filter(i=>byId(i.id)).map(i=>({id:i.id,qty:Math.min(i.qty,byId(i.id).stock)})).filter(i=>i.qty>0);save();
   renderSide();renderGrid();renderCart();
 }
 function renderSide(){
-  $('#side').innerHTML=products.filter(p=>p.featured).slice(0,2).map(p=>`<button class="side-card" data-open="${p.id}"><h3>${esc(p.name)}</h3><div class="price-tag">${KSh(p.price)}</div><span class="big" aria-hidden="true">${esc(p.emoji)}</span></button>`).join('');
+  $('#side').innerHTML=products.filter(p=>p.featured).slice(0,2).map(p=>`<button class="side-card" data-open="${p.id}"><h3>${esc(p.name)}</h3><div class="price-tag">${KSh(p.price)}</div><span class="big">${pic(p)}</span></button>`).join('');
 }
 function renderGrid(){
   let list=products.filter(p=>(cat==='all'||p.cat===cat)&&(p.name+' '+p.brand).toLowerCase().includes(q.toLowerCase()));
